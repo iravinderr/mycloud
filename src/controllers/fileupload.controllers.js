@@ -37,29 +37,36 @@ const uploadToCloudinary = async(file, folder) => {
     return await cloudinary.uploader.upload(file.tempFilePath, options);
 }
 
-exports.imageUpload = async(req, res) => {
+exports.fileUpload = async(req, res) => {
     try{
-        const file = req.files.imageFile;
+        const file = req.files.file;
         const {title, content} = req.body;
 
-        const supportedTypes = ["jpeg", "jpg", "png"];
-        const fileType = file.name.split(".")[1].toLowerCase();
-
-        if(!supportedTypes.includes(fileType)){
+        const image = ["jpeg", "jpg", "png"];
+        const video = ["mp4", "mov", "wmv"];
+        const fileExt = file.name.split(".")[1].toLowerCase();
+        
+        if(!image.includes(fileExt) && !video.includes(fileExt)){
             return res.status(400).json({
                 success: false,
                 message: "File type not supported",
             });
         }
+        
+        let fileType;
+        if(image.includes(fileExt)){
+            fileType = `image`
+        }
+        else if(video.includes(fileExt)){
+            fileType = `video`;
+        }
 
         const response = await uploadToCloudinary(file, "MyCloud");
-        // console.log(response);
-
-        const fileData = await fileDB.create({title, content, url:response.url});
+        const fileData = await fileDB.create({title, content, url:response.secure_url});
 
         res.status(200).json({
             success: true,
-            message: "File uploaded successfully and entry created in the database",
+            message: `File uploaded successfully and entry created in the database and file type is ${fileType}`,
             data: fileData,
         });
 

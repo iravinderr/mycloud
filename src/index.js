@@ -13,7 +13,10 @@ app.use(express.json());
 
 // ADDING MIDDLEWARE FOR HANDLING THE MEDIA FILES IN THE REQUEST BODY
 const fileupload = require("express-fileupload");
-app.use(fileupload());
+app.use(fileupload({
+    useTempFiles : true,
+    tempFileDir : '/tmp/'
+}));
 
 
 // CONNECTING THE SERVER WITH THE DATABASE
@@ -28,7 +31,7 @@ cdConnect();
 
 // MOUNTING THE API ROUTES
 const fileUploadRoutes = require("./routes/fileupload.routes");
-app.use("/api/v1", fileUploadRoutes);
+app.use("/api/v1/upload", fileUploadRoutes);
 
 
 // ACTIVATING THE SERVER TO LISTEN
